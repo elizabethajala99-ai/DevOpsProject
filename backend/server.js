@@ -60,6 +60,42 @@ const pool = mysql.createPool({
   connectionLimit: 10,
 });
 
+// --- Database initialization ---
+async function initDatabase() {
+  try {
+    console.log("[DB] Checking database schema...");
+    
+    // Create users table if it doesn't exist
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_email (email)
+      )
+    `);
+    
+    // Create tasks table if it doesn't exist
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS tasks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        completed TINYINT(1) NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
+    console.log("[DB] Database schema initialized successfully");
+  } catch (err) {
+    console.error("[DB] Failed to initialize database:", err);
+    // Don't exit - let the app continue, health checks will handle this
+  }
+}
+
+// Run database initialization on startup
+initDatabase();
+
 // --- Auth helpers ---
 function signToken(payload) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
