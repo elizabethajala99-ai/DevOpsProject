@@ -264,4 +264,13 @@ app.delete("/api/tasks/:id", authRequired, async (req, res) => {
 
 // --- Start server ---
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server listening on ${port}`));
+
+// Initialize database and then start server
+initDatabase()
+  .then(() => {
+    app.listen(port, () => console.log(`Server listening on ${port}`));
+  })
+  .catch((err) => {
+    console.error("Failed to initialize database:", err);
+    process.exit(1);
+  });
