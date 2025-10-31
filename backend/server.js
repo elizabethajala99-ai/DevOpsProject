@@ -91,12 +91,18 @@ app.get("/index.html", authRequired, (_req, res) => {
 });
 
 // --- Health ---
-app.get("/api/health", async (_req, res) => {
+// Simple health check - no database required
+app.get("/api/health", (_req, res) => {
+  res.json({ ok: true, status: "healthy" });
+});
+
+// Optional: Database health check endpoint
+app.get("/api/health/db", async (_req, res) => {
   try {
     const [rows] = await pool.query("SELECT 1 as ok");
-    res.json({ ok: rows[0].ok === 1 });
+    res.json({ ok: rows[0].ok === 1, database: "connected" });
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    res.status(500).json({ ok: false, error: e.message, database: "disconnected" });
   }
 });
 
