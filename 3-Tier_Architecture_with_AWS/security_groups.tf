@@ -97,11 +97,22 @@ resource "aws_security_group" "db_sg" {
   description = "Security group for RDS database"
   vpc_id      = aws_vpc.main_vpc.id
 
+  # Allow MySQL access from ECS container instances
   ingress {
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
-  # Removed app_instance_sg as part of ECS migration
+    security_groups = [aws_security_group.ecs_instance_sg.id]
+    description     = "Allow MySQL from ECS instances"
+  }
+
+  # Allow MySQL access from bastion for administration
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion_sg.id]
+    description     = "Allow MySQL from bastion"
   }
 
   tags = {
@@ -150,4 +161,15 @@ resource "aws_security_group" "ecs_instance_sg" {
   tags = {
     Name = "ecs-instance-sg"
   }
+}
+
+# Separate rule to allow ECS instances to reach internal ALB (avoids circular dependency)
+resource "aws_security_group_rule" "alb_app_from_ecs" {
+  type                     = "ingress"
+  from_port                = 5000
+  to_port                  = 5000
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.alb_app_sg.id
+  source_security_group_id = aws_security_group.ecs_instance_sg.id
+  description              = "Allow ECS instances (frontend containers) to access internal ALB"
 }
