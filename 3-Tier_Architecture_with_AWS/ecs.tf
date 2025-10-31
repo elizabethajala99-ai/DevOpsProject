@@ -65,14 +65,14 @@ resource "aws_ecs_service" "backend" {
   desired_count   = 2
   launch_type     = "EC2"
   
-  health_check_grace_period_seconds = 300
+  health_check_grace_period_seconds = 600
   
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 50
   
   deployment_circuit_breaker {
-    enable   = true
-    rollback = true
+    enable   = false
+    rollback = false
   }
   
   # For EC2 launch type, networking is handled by the EC2 instances (container instances)
