@@ -124,3 +124,28 @@ variable "github_repo" {
   description = "GitHub repository name"
   type        = string
 }
+
+# SSM and Secrets Manager variables
+variable "jwt_secret" {
+  description = "JWT signing secret for authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "environment" {
+  description = "Environment name (production, staging, development)"
+  type        = string
+  default     = "production"
+}
+
+variable "enable_monitoring" {
+  description = "Enable CloudWatch monitoring for secrets access"
+  type        = bool
+  default     = true
+}
+
+variable "db_slave_password" {
+  description = "Password for the database slave/read replica"
+  type        = string
+  sensitive   = true
+}
