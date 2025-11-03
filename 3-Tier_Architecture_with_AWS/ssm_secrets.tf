@@ -12,7 +12,7 @@ data "aws_caller_identity" "current" {}
 resource "aws_ssm_parameter" "database_host" {
   name  = "/myapp/database/host"
   type  = "String"
-  value = aws_db_instance.database_master.endpoint
+  value = aws_db_instance.database_master.address
   
   description = "RDS master database endpoint"
 
